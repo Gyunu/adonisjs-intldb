@@ -77,18 +77,14 @@ class LocalizedModel extends Model {
         languageCode = instance.___languageCode;
       }
 
-      if (instance.id) {
-        const count = await Database
-          .from(instance.localizedTableName)
-          .where(instance.localizedForeignKey, instance.id)
-          .where("language_code", languageCode)
-          .count();
+      const count = await Database
+        .from(instance.localizedTableName)
+        .where(instance.localizedForeignKey, instance.id)
+        .where("language_code", languageCode)
+        .count();
 
-        if (count) {
-          await LocalizedModel._updateLocalizedTable(languageCode, instance);
-        } else {
-          await LocalizedModel._insertInLocalizedTable(languageCode, instance);
-        }
+      if (count["count(*)"]) {
+        await LocalizedModel._updateLocalizedTable(languageCode, instance);
       } else {
         await LocalizedModel._insertInLocalizedTable(languageCode, instance);
       }
@@ -117,12 +113,15 @@ class LocalizedModel extends Model {
   }
 
   static _insertInLocalizedTable(languageCode, instance) {
+    const data = {
+      ...instance.$localizedAttributes,
+      "language_code": languageCode
+    };
+
+    data[instance.localizedForeignKey] = instance.id;
+
     return Database
-      .insert({
-        ...instance.$localizedAttributes,
-        "project_id": instance.id,
-        "language_code": languageCode
-      })
+      .insert(data)
       .into(instance.localizedTableName);
   }
 

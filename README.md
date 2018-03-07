@@ -143,3 +143,7 @@ the `LocalizedModel` class like this:
     
     // ...
     ```
+## Version history
+
+- 0.2.0 - Initial release
+- 0.2.1 - Fix inserts bug
